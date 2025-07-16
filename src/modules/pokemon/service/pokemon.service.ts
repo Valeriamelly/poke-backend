@@ -30,7 +30,7 @@ export class PokemonService {
 
   async list(dto: ListPokemonDto) {
     const { limit, offset, q } = dto;
-    let master = await this.cache.get<PokeList['results']>(this.masterKey);
+    let master = await this.cache.get<Pokemon[]>(this.masterKey);
 
     if (!master) {
       const url = `${this.api}/pokemon?limit=2000&offset=0`;
@@ -47,10 +47,7 @@ export class PokemonService {
     // Paginación
     const paginated = filtered.slice(offset, offset + limit);
 
-    const payload = {
-      count: filtered.length,
-      results: paginated,
-    };
+    const payload: PokeList = { count: filtered.length, results: paginated };
 
     return payload;
   }

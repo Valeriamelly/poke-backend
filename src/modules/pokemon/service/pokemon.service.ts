@@ -5,16 +5,19 @@ import { ConfigService } from '@nestjs/config';
 import { ListPokemonDto } from '../dto/list-pokemon.dto';
 import { firstValueFrom } from 'rxjs';
 
+export interface Pokemon {
+  name: string;
+  url: string;
+}
 interface PokeList {
   count: number;
-  results: {
-    name: string;
-    url: string;
-  }[];
+  results: Pokemon[];
 }
 @Injectable()
 export class PokemonService {
   private readonly api: string;
+  private readonly masterKey = 'pokemon:master-list';
+  private readonly masterTTL = 24 * 60 * 60;
 
   constructor(
     private readonly http: HttpService,
@@ -27,28 +30,27 @@ export class PokemonService {
 
   async list(dto: ListPokemonDto) {
     const { limit, offset, q } = dto;
-    const key = `list-${limit}-${offset}-${q}`;
+    let master = await this.cache.get<PokeList['results']>(this.masterKey);
 
-    // Leer caché
-    const cached = await this.cache.get(key);
-    if (cached) {
-      return cached;
+    if (!master) {
+      const url = `${this.api}/pokemon?limit=2000&offset=0`;
+      const { data } = await firstValueFrom(this.http.get<PokeList>(url));
+      master = data.results;
+      await this.cache.set(this.masterKey, master, this.masterTTL);
     }
 
-    // Hacer petición a la API
-    const url = `${this.api}/pokemon?limit=${limit}&offset=${offset}`;
-    const { data } = await firstValueFrom(this.http.get<PokeList>(url));
-
-    // Filtrar resultados por nombre
-
+    // Filtrar por nombre
     const filtered = q
-      ? data.results.filter((pokemon) => pokemon.name.includes(q.toLowerCase()))
-      : data.results;
+      ? master.filter((pokemon) => pokemon.name.includes(q.toLowerCase()))
+      : master;
 
-    const payload = { count: filtered.length, results: filtered };
+    // Paginación
+    const paginated = filtered.slice(offset, offset + limit);
 
-    // Guardar en caché
-    await this.cache.set(key, payload);
+    const payload = {
+      count: filtered.length,
+      results: paginated,
+    };
 
     return payload;
   }

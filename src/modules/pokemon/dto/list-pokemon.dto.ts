@@ -19,5 +19,5 @@ export class ListPokemonDto {
 
   @IsString()
   @IsNotEmpty()
-  q!: string;
+  q?: string;
 }

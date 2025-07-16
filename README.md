@@ -96,3 +96,18 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+
+## ✨ Decisiones técnicas — Backend (Nest JS 10)
+
+| Área | Decisión | Motivo / Beneficio |
+|------|----------|--------------------|
+| **Descarga de datos** | Obtener la lista completa de Pokémon con `limit=2000` **una sola vez cada 24 h** y guardarla en cache. | Reduce latencia para las consultas. |
+| **Caché** | `@nestjs/cache-manager` en memoria (`pokemon:master-list`, TTL 24 h). | Suficiente para la demo; migrar a Redis solo requiere cambiar la store. |
+| **Filtrado + paginación** | Procesar en RAM: `filter` + `slice`. | 1 300 registros ≈ 250 KB; CPU mínima y mantiene la interfaz `limit/offset/q`. |
+| **Validación de input** | DTO con `class-validator`: `limit` 1‑100, `offset` ≥ 0, `q` opcional y `@IsNotEmpty`. | Requests mal formados reciben 400 antes de ejecutar lógica. |
+| **Exposición de sprites** | **No** se envían imágenes; el frontend deriva `.../official-artwork/{id}.png`. | Menos ancho de banda y complejidad. |
+| **Pruebas** | **Solo unitarias** con Jest; mocks de `HttpService` y `CACHE_MANAGER`. | Verifica filtrado y caché sin dependencia de red; mantiene el ciclo de feedback rápido. |
+| **Estructura del código** | Patrón *feature‑first* (`modules/pokemon`, `modules/health`). | Alta cohesión y escalabilidad: añadir un nuevo dominio es trivial. |
+| **Configuración** | `@nestjs/config` + `.env` (`POKE_API`, `CACHE_TTL`, `PORT`). | Facilita cambios de entorno|
+

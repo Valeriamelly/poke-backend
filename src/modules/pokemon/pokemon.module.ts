@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { PokemonController } from './pokemon.controller';
-import { PokemonService } from './pokemon.service';
+import { PokemonController } from './controller/pokemon.controller';
+import { PokemonService } from './service/pokemon.service';
 import { HttpModule } from '@nestjs/axios';
 
 @Module({

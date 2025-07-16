@@ -2,7 +2,7 @@ import { HttpService } from '@nestjs/axios';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ListPokemonDto } from './dto/list-pokemon.dto';
+import { ListPokemonDto } from '../dto/list-pokemon.dto';
 import { firstValueFrom } from 'rxjs';
 
 interface PokeList {

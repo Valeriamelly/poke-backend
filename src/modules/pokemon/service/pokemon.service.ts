@@ -9,7 +9,7 @@ export interface Pokemon {
   name: string;
   url: string;
 }
-interface PokeList {
+export interface PokeList {
   count: number;
   results: Pokemon[];
 }

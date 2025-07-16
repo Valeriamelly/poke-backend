@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsInt, Min, Max, IsString, IsNotEmpty } from 'class-validator';
+import { IsInt, Min, Max, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class ListPokemonDto {
   // limit: número de página
@@ -17,7 +17,7 @@ export class ListPokemonDto {
   @Type(() => Number)
   offset!: number;
 
-  @IsString()
+  @IsOptional()
   @IsNotEmpty()
   q?: string;
 }
